@@ -1,7 +1,7 @@
 {
-  "name": "puppet-podman",
+  "name": "puppet-containers",
   "version": "0.1.0",
-  "author": "Vox Pupuli",
+  "author": "Jarkko Oranen",
   "summary": "",
   "license": "Apache-2.0",
   "source": "",
