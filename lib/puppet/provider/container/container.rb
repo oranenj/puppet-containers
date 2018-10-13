@@ -30,7 +30,17 @@ class Puppet::Provider::Container::Container < Puppet::ResourceApi::SimpleProvid
   end
 
   def get(_context)
-      list_containers(_context).map do |c|
+      containers = list_containers(_context)
+      return [] if containers == []
+      ids = containers.map { |c| c['id'] } 
+      # Get detailed info and put it into a hash keyed by ID for easier access
+      # This is somewhat of a hack. We store the user's "extra_options" array as container metadata
+      # so that it's easy to detect if it has been changed or not
+      c_info = JSON.parse(podman_cmd(_context, 'container', 'inspect', *ids))
+      c_info = Hash[c_info.map{|x| [x["ID"], x]}]
+
+      containers.map do |c|
+          extra_options = c_info[c['id']]['Config']['Annotations'].fetch('org.voxpupuli.puppet-extra-options', "[]")
           {
               ensure: 'present',
               status: c['status'].downcase,
@@ -40,13 +50,21 @@ class Puppet::Provider::Container::Container < Puppet::ResourceApi::SimpleProvid
               image: c['image'],
               id: c['id'],
               command: c['command'],
+              extra_options: JSON.parse(extra_options),
           }
       end
   end
 
   def create(context, name, should)
     context.notice("Creating '#{name}' with #{should.inspect}")
-    podman_cmd('container', 'create', '--name', name, should[:image], *should[:command])
+    args = ['--name', name]
+    if should[:extra_options] != []
+        json = JSON.generate should[:extra_options]
+        args.concat ["--annotation", "org.voxpupuli.puppet-extra-options=#{json}"]
+    end
+    args << should[:image]
+    args.concat should[:command]
+    podman_cmd('container', 'create', *args)
   end
 
   def update(context, name, should)
@@ -58,7 +76,7 @@ class Puppet::Provider::Container::Container < Puppet::ResourceApi::SimpleProvid
   def delete(context, name)
     context.notice("Deleting '#{name}'")
     # TODO: Figure out if we should use id somehow
-    podman_cmd('container', 'rm', name)
+    podman_cmd('container', 'rm', '-f', name)
 
   end
 end

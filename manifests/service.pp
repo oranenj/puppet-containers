@@ -5,7 +5,7 @@
 # @example
 #   containers::service { 'my_container': }
 define containers::service(
-    String $service_name = $title
+    String $service_name = $title,
     Optional[Boolean] $service_active = true,
     Optional[Boolean] $service_enable = true,
 ) {

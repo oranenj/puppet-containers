@@ -18,7 +18,7 @@ Puppet::ResourceApi.register_type(
       behaviour: :namevar,
     },
     pod:        {
-      type:      'String',
+      type:      'Optional[String]',
       desc:      'The pod to run the container in.',
     },
     volumes:        {
@@ -51,6 +51,11 @@ Puppet::ResourceApi.register_type(
     extra_options:        {
       type:      'Array[String]',
       desc:      'An array of extra options passed to podman when creating the container',
+      default: []
     },
   },
+  autorequires: {
+    class:      'containers',
+    container_pod: '$pod',
+  }
 )
