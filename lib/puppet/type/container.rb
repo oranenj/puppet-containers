@@ -17,6 +17,14 @@ Puppet::ResourceApi.register_type(
       desc:      'The name of the resource you want to manage.',
       behaviour: :namevar,
     },
+    pod:        {
+      type:      'String',
+      desc:      'The pod to run the container in.',
+    },
+    volumes:        {
+      type:      'Optional[Array[String]]',
+      desc:      'The volume definitions for the container',
+    },
     image:        {
       type:      'String',
       desc:      'The image of the container',
@@ -39,6 +47,10 @@ Puppet::ResourceApi.register_type(
     command:        {
       type:      'Array[String]',
       desc:      'The command executed in the container',
+    },
+    extra_options:        {
+      type:      'Array[String]',
+      desc:      'An array of extra options passed to podman when creating the container',
     },
   },
 )
