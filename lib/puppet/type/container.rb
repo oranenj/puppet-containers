@@ -48,6 +48,12 @@ Puppet::ResourceApi.register_type(
       type:      'Array[String]',
       desc:      'The command executed in the container',
     },
+    force:        {
+      type:      'Boolean',
+      desc:      'Use force when removing or updating containers',
+      default:   false,
+      behaviour: :parameter,
+    },
     extra_options:        {
       type:      'Array[String]',
       desc:      'An array of extra options passed to podman when creating the container',

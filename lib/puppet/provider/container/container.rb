@@ -69,14 +69,20 @@ class Puppet::Provider::Container::Container < Puppet::ResourceApi::SimpleProvid
 
   def update(context, name, should)
     context.notice("Recreating '#{name}' with #{should.inspect}")
-    delete(context, name)
+    delete(context, name, should[:force])
     create(context, name, should)
   end
 
-  def delete(context, name)
+  def delete(context, name, force = false)
     context.notice("Deleting '#{name}'")
+    cmd = ['container', 'rm']
+    if force
+        cmd << '-f'
+    end
+    cmd << name
+
     # TODO: Figure out if we should use id somehow
-    podman_cmd('container', 'rm', '-f', name)
+    podman_cmd(context, cmd)
 
   end
 end
